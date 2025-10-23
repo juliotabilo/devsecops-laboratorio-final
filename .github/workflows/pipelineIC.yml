@@ -10,7 +10,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
         - name: Checkout repository
-          uses: actions/checkout@v3
+          uses: actions/checkout@v4
 
-        - name: Imprimir Hola Mundo
-          run: echo "Hola Mundo desde GitHub Actions (Mi primer Job)"
+        #- name: Imprimir Hola Mundo
+          #run: echo "Hola Mundo desde GitHub Actions (Mi primer Job)"
+        
+        - name: Validando existencia de Proyecto en Sonarcloud
+          id: validateProjectSonar
+          run: |
+            curl -X POST -u '${{ secrets.SONAR_TOKEN }}:' 'https://sonarcloud.io/api/projects/create' -d 'name=${{github.event.repository.name}}' -d 'organization=juliotabilo' -d 'project=${{github.event.repository.name}}' -d 'visibility=public'
+            if [ $? -eq 0 ]; then
+              echo "Proyecto creado o ya existe en SonarCloud"
+              curl -X POST -u '${{ secrets.SONAR_TOKEN }}:' 'https://sonarcloud.io/api/project_branches/rename' -d 'name=main' -d 'project=${{github.event.repository.name}}'
+
+            else
+              echo "Error al crear el proyecto en SonarCloud"
+              exit 1
+            fi
