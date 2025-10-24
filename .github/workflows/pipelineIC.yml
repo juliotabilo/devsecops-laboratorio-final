@@ -1,3 +1,4 @@
+#Pipeline IC - DevSecOps Tarea Final (Desarrollado por Julio Tabilo Riquelme - tabilo.julio@gmail.com)
 name: WorkFlow para IC - DevSecOps
 
 on:
@@ -9,12 +10,11 @@ jobs:
   JTRPipeline:
     runs-on: ubuntu-latest
     steps:
+        # 1. Clonación de repositorio
         - name: Checkout repository
           uses: actions/checkout@v4
-
-        #- name: Imprimir Hola Mundo
-          #run: echo "Hola Mundo desde GitHub Actions (Mi primer Job)"
         
+        # 2.0 Validar Existencia de Proyecto en SonarCloud
         - name: Validando existencia de Proyecto en Sonarcloud
           id: validateProjectSonar
           run: |
@@ -26,6 +26,8 @@ jobs:
               echo "Error al crear el proyecto en SonarCloud"
               exit 1
             fi
+
+        # 2.1 Ejecutar Análisis de SonarCloud SAST
         - name: Analisis SonarCloud
           uses: SonarSource/sonarcloud-github-action@master
           env:
@@ -34,7 +36,6 @@ jobs:
           #with:
             #args: -Dsonar.qualitygate.wait=true
           continue-on-error: true 
-
 
         # 3.0 Preparar Node.js para SCA
         - name: Setup Node.js
@@ -67,7 +68,7 @@ jobs:
           run: npm audit --audit-level=moderate
           continue-on-error: true
 
-  # 4. Construcción de la Imagen Docker
+        # 4. Construcción de la Imagen Docker
         - name: Construcción de imagen Docker
           run: docker build -t movies-app:latest .
 
@@ -82,13 +83,13 @@ jobs:
             ignore-unfixed: false
           continue-on-error: true
 
-
         # 5.1. Generar reporte HTML Trivy usando plantilla local
         - name: Generar reporte HTML de Trivy
           if: always()
           run: |
             trivy image --format template --template "@.github/trivy/html.tpl" --output trivy-report.html movies-app:latest
             echo "Reporte HTML de Trivy generado con éxito."
+
         # 5.2. Publicar reporte Trivy HTML
         - name: Publicar reporte Trivy HTML
           if: always()
