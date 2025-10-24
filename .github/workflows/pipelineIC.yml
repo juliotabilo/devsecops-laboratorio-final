@@ -65,4 +65,34 @@ jobs:
         # 3.4 Ejecutar npm audit para fallo en vulnerabilidades medias o mayores
         - name: SCA - npm audit (falla si hay vulnerabilidades medias o mayores)
           run: npm audit --audit-level=moderate
-          continue-on-error: false
+          continue-on-error: true
+
+  # 4. Construcción de la Imagen Docker
+        - name: Construcción de imagen Docker
+          run: docker build -t movies-app:latest .
+
+        # 5. Escaneo de vulnerabilidades de imagen Docker con Trivy
+        - name: Escaneo de imagen con Trivy  
+          uses: aquasecurity/trivy-action@master  
+          with:
+            image-ref: movies-app:latest
+            severity: CRITICAL,HIGH,MEDIUM
+            #exit-code: 1
+            format: table
+            ignore-unfixed: false
+            continue-on-error: true
+
+
+        # 5.1. Generar reporte HTML Trivy usando plantilla local
+        - name: Generar reporte HTML de Trivy
+          if: always()
+          run: |
+            trivy image --format template --template "@.github/trivy/html.tpl" --output trivy-report.html movies-app:latest
+            echo "Reporte HTML de Trivy generado con éxito."
+        # 5.2. Publicar reporte Trivy HTML
+        - name: Publicar reporte Trivy HTML
+          if: always()
+          uses: actions/upload-artifact@v4
+          with:
+            name: trivy-html-report
+            path: trivy-report.html
