@@ -39,7 +39,7 @@ jobs:
             -Dsonar.organization=juliotabilo
             -Dsonar.projectKey=devsecops-laboratorio-final
             -Dsonar.sources=.
-        continue-on-error: true 
+        continue-on-error: false 
 
       # 3.0 Preparar Node.js para SCA
       - name: Setup Node.js
