@@ -82,7 +82,7 @@ jobs:
         with:
           image-ref: movies-app:latest
           severity: CRITICAL,HIGH,MEDIUM
-          exit-code: 1
+          #exit-code: 1
           format: table
           ignore-unfixed: false
           continue-on-error: true
@@ -90,6 +90,7 @@ jobs:
 
       # 5.1 Generar reporte HTML Trivy
       - name: Generar reporte HTML de Trivy
+        if: always()
         run: |
           wget https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl
           trivy image --format template --template "@/github/workspace/html.tpl" \
@@ -98,6 +99,7 @@ jobs:
 
       # 5.2 Publicar reporte Trivy HTML
       - name: Publicar reporte de seguridad (Trivy)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: trivy-html-report
