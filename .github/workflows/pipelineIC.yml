@@ -46,7 +46,9 @@ jobs:
               --sonarurl="https://sonarcloud.io" \
               --sonartoken="${{ secrets.SONAR_TOKEN }}" \
               --sonarorganization="juliotabilo" \
-              --sonarcomponent="devsecops-laboratorio-final" > sonar-report.html
+              --sonarcomponent="devsecops-laboratorio-final" \
+              --sonarbranch="feat-devsecops" \
+              --sonarrelease="1.0.0" > sonar-report.html
           continue-on-error: true
 
         - name: Publicar reporte SonarCloud HTML
