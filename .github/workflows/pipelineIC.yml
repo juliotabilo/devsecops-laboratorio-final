@@ -46,8 +46,9 @@ jobs:
           continue-on-error: true
         - name: Generar reporte HTML SCA
           run: |
-            npm audit --json > audit.json || true
-            npx npm-audit-html -i audit.json -o audit-report.html
+            npm install better-npm-audit
+            npx better-npm-audit audit --json > audit.json || true
+            npx npm-audit-html@beta -i audit.json -o audit-report.html
           continue-on-error: true
         - name: Publicar reporte SCA como artefacto
           uses: actions/upload-artifact@v4
