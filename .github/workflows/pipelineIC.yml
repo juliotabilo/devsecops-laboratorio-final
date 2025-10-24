@@ -86,3 +86,18 @@ jobs:
           format: table
           ignore-unfixed: false
 
+      # 5.1 Generar reporte HTML Trivy
+      - name: Generar reporte HTML de Trivy
+        run: |
+          wget https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl
+          trivy image --format template --template "@/github/workspace/html.tpl" \
+            -o trivy-report.html movies-app:latest
+          echo "Reporte HTML de Trivy generado con éxito."
+
+      # 5.2 Publicar reporte Trivy HTML
+      - name: Publicar reporte de seguridad (Trivy)
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-html-report
+          path: trivy-report.html
+
