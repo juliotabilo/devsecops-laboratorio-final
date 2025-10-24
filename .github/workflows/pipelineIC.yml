@@ -29,34 +29,15 @@ jobs:
               exit 1
             fi
 
-        # Analisis SAST con SonarCloud oficial (exportando a JSON)
-        - name: Análisis SonarCloud con exportación
-          uses: SonarSource/sonarcloud-github-action@v2
-          with:
-            args: >
-              -Dsonar.organization=juliotabilo
-              -Dsonar.projectKey=devsecops-laboratorio-final
-              -Dsonar.sources=.
-              -Dsonar.qualitygate.wait=true
-              -Dsonar.report.export.path=sonar-report.json
+        - name: Analisis SonarCloud
+          uses: SonarSource/sonarcloud-github-action@master
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          continue-on-error: true
-
-        # Convertir reporte JSON a HTML descargable
-        - name: Convertir JSON de SonarCloud a HTML
-          uses: Teebra/JSON-to-HTML-table@v2.0.0
-          with:
-            json-file: sonar-report.json
-          continue-on-error: true
-
-        # Publicar reporte SonarCloud HTML como artefacto
-        - name: Publicar reporte HTML SonarCloud
-          uses: actions/upload-artifact@v4
-          with:
-            name: sast-sonarcloud-report
-            path: output.html
+          #with:
+            # args: -Dsonar.qualitygate.wait=true #Estas Lineas hacen que falle el pipeline si encuentra vulnerabilidades críticas, altas o medias (Asi esta definido el quality gate en SonarCloud)
+          #continue-on-error: false Esta Linea hace que si hay error en el Pipeline se quiebre
+          continue-on-error: true  # Esta línea hace que no haya quiebre en el Pipeline (A pesar que haya error sigue)
 
           # Analisis SCA
         - name: Setup Node.js
@@ -66,7 +47,7 @@ jobs:
         - name: Install dependencies
           run: npm install
           continue-on-error: true
-        - name: Generar reporte HTML SCA (Otra Versión)
+        - name: Generar reporte HTML SCA
           run: |
             npm audit --json | npx npm-audit-html@beta --output ReporteSCA.html || true
             echo "=== Archivos generados ==="
