@@ -145,4 +145,4 @@
     <h1>Trivy Returned Empty Report</h1>
 {{- end }}
   </body>
-</html>
+</html> 
