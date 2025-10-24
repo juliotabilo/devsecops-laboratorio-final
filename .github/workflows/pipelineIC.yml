@@ -73,7 +73,7 @@ jobs:
 
       # 5. Escaneo de vulnerabilidades de imagen Docker con Trivy
       - name: Escaneo de imagen con Trivy  
-        uses: aquasecurity/trivy-action@90b9958f8747ef6d590204b2a6b11ca9411f36b3
+        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8
         with:
           image-ref: movies-app:latest
           severity: CRITICAL,HIGH,MEDIUM
