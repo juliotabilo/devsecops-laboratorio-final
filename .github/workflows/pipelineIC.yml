@@ -44,17 +44,16 @@ jobs:
         - name: Install dependencies
           run: npm install
           continue-on-error: true
-        - name: Generar reporte HTML SCA
+        - name: Generar reporte HTML SCA (con audit-export)
           run: |
-            npm install better-npm-audit
-            npx better-npm-audit audit --json > audit.json || true
-            npx npm-audit-html@beta -i audit.json -o audit-report.html
+            npm audit --json | npx audit-export --html ReporteSCA.html || true
+            ls -la *.html
           continue-on-error: true
         - name: Publicar reporte SCA como artefacto
           uses: actions/upload-artifact@v4
           with:
             name: sca-audit-report
-            path: audit-report.html
+            path: ReporteSCA1.html
         - name: SCA - npm audit (falla con vulnerabilidades)
           run: npm audit --audit-level=moderate
 
