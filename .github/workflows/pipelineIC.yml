@@ -51,7 +51,7 @@ jobs:
               --outputfile="sonar-report.html"
           continue-on-error: true
         - name: Publicar reporte SonarCloud HTML  
-          uses: actions/upload-artifact@v4
+          uses: actions/upload-artifact@v4 
           with:
             name: sast-sonar-report
             path: sonar-report.html
