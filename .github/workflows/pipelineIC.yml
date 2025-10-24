@@ -9,60 +9,69 @@ jobs:
   JTRPipeline:
     runs-on: ubuntu-latest
     steps:
-        - name: Checkout repository
-          uses: actions/checkout@v4
+      # 1. Clonar repositorio completo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-        #- name: Imprimir Hola Mundo
-          #run: echo "Hola Mundo desde GitHub Actions (Mi primer Job)"
+      # 2.0 Validar existencia o crear proyecto en SonarCloud
+      - name: Validando existencia de Proyecto en Sonarcloud
+        id: validateProjectSonar
+        run: |
+          curl -s -X POST -u "${{ secrets.SONAR_TOKEN }}:" \
+            'https://sonarcloud.io/api/projects/create' \
+            -d "name=${{ github.event.repository.name }}" \
+            -d "organization=juliotabilo" \
+            -d "project=${{ github.event.repository.name }}" \
+            -d "visibility=public" || true
+          echo "Proyecto creado o ya existente en SonarCloud"
 
-        #Analisis SAST
-        - name: Validando existencia de Proyecto en Sonarcloud
-          id: validateProjectSonar
-          run: |
-            curl -X POST -u '${{ secrets.SONAR_TOKEN }}:' 'https://sonarcloud.io/api/projects/create' -d 'name=${{github.event.repository.name}}' -d 'organization=juliotabilo' -d 'project=${{github.event.repository.name}}' -d 'visibility=public'
-            if [ $? -eq 0 ]; then
-              echo "Proyecto creado o ya existe en SonarCloud"
-              curl -X POST -u '${{ secrets.SONAR_TOKEN }}:' 'https://sonarcloud.io/api/project_branches/rename' -d 'name=main' -d 'project=${{github.event.repository.name}}'
+      # 2.1 Análisis SonarCloud (SAST)
+      - name: Análisis SonarCloud
+        uses: SonarSource/sonarcloud-github-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.organization=juliotabilo
+            -Dsonar.projectKey=devsecops-laboratorio-final
+            -Dsonar.sources=.
+        continue-on-error: true 
 
-            else
-              echo "Error al crear el proyecto en SonarCloud"
-              exit 1
-            fi
+      # 3.0 Preparar Node.js para SCA
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
 
-        - name: Analisis SonarCloud
-          uses: SonarSource/sonarcloud-github-action@master
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          #with:
-            # args: -Dsonar.qualitygate.wait=true #Estas Lineas hacen que falle el pipeline si encuentra vulnerabilidades críticas, altas o medias (Asi esta definido el quality gate en SonarCloud)
-          #continue-on-error: false Esta Linea hace que si hay error en el Pipeline se quiebre
-          continue-on-error: true  # Esta línea hace que no haya quiebre en el Pipeline (A pesar que haya error sigue)
+      # 3.1 Instalar dependencias npm
+      - name: Install dependencies
+        run: npm ci
+        continue-on-error: true
 
-          # Analisis SCA
-        - name: Setup Node.js
-          uses: actions/setup-node@v4
-          with:
-            node-version: '18'
-        - name: Install dependencies
-          run: npm install
-          continue-on-error: true
-        - name: Generar reporte HTML SCA
-          run: |
-            npm audit --json | npx npm-audit-html@beta --output ReporteSCA.html || true
-            echo "=== Archivos generados ==="
-            ls -la *.html
-          continue-on-error: true
-        
-        - name: Publicar reporte SCA como artefacto
-          uses: actions/upload-artifact@v4
-          with:
-            name: sca-audit-report
-            path: "*.html"
-        - name: SCA - npm audit (falla con vulnerabilidades)
-          run: npm audit --audit-level=moderate #Esta linea hace que falle si hay vulnerabilidades medias o mayores
-          continue-on-error: true #Con esta linea no se quiebra el Pipeline
+      # 3.2 Generar reporte HTML de SCA
+      - name: Generar reporte HTML SCA
+        run: |
+          npm audit --json | npx npm-audit-html@beta --output ReporteSCA.html || true
+          echo "=== Archivos generados ==="
+          ls -la ReporteSCA.html
+        continue-on-error: true
 
+      # 3.3 Publicar reporte SCA como artefacto
+      - name: Publicar reporte SCA
+        uses: actions/upload-artifact@v4
+        with:
+          name: sca-audit-report
+          path: ReporteSCA.html
 
+      # 3.4 Ejecutar npm audit para fallo en vulnerabilidades medias o mayores
+      - name: SCA - npm audit (falla si hay vulnerabilidades medias o mayores)
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
 
-           
+      # 4. Construcción de la Imagen Docker
+      - name: Construcción de imagen Docker
+        run: docker build -t movies-app:latest .
