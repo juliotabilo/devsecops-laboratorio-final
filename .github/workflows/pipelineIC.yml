@@ -77,12 +77,11 @@ jobs:
         run: docker build -t movies-app:latest .
 
       # 5. Escaneo de vulnerabilidades de imagen Docker con Trivy
-      - name: Escaneo de imagen con Trivy
-        uses: aquasecurity/trivy-action@v0.28.0
+      - name: Escanear imagen con Trivy
+        uses: aquasecurity/trivy-action@v0.24.0
         with:
           image-ref: movies-app:latest
           severity: CRITICAL,HIGH,MEDIUM
-          scanners: vuln
           format: table
+          exit-code: 1
           ignore-unfixed: false
-          exit-code: 1   # Falla el pipeline si hay vulnerabilidades de esos niveles
