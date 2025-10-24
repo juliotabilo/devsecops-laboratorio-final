@@ -32,9 +32,8 @@ jobs:
 
       # 2.1 Análisis SonarCloud (SAST)
       - name: SonarCloud
-        uses: SonarSource/sonarcloud-github-action@689fb39b34b9aa95ebc5f8f119343ddd51542402
+        uses: SonarSource/sonarcloud-github-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: -Dsonar.qualitygate.wait=true
