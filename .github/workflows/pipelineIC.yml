@@ -6,7 +6,7 @@ on:
       - feat-devsecops
 
 jobs:
-  saludo:
+  JTRPipeline:
     runs-on: ubuntu-latest
     steps:
         - name: Checkout repository
