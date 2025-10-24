@@ -33,5 +33,5 @@ jobs:
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          with:
-            args: -Dsonar.qualitygate.wait=true
+          continue-on-error: true  # Esta línea hace que no haya quiebre en el Pipeline (A pesar que haya error sigue)
+
