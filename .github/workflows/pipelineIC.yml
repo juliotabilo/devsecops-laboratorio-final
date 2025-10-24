@@ -16,24 +16,19 @@ jobs:
           fetch-depth: 0
 
       # 2.0 Validar existencia o crear proyecto en SonarCloud
-      - name: Validar o crear proyecto en SonarCloud
+      - name: Validando existencia de Proyecto en Sonarcloud
         id: validateProjectSonar
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          response=$(curl -s -o /dev/null -w "%{http_code}" -u "$SONAR_TOKEN:" \
-            "https://sonarcloud.io/api/projects/search?projects=devsecops-laboratorio-final")
-          
-          if [[ "$response" != "200" ]]; then
-            echo "Proyecto no existe, creando..."
-            curl -s -X POST -u "$SONAR_TOKEN:" \
-              -H "Content-Type: application/json" \
-              -d '{"name": "devsecops", "project": "devsecops-laboratorio-final", "organization":"juliotabilo"}' \
-              "https://sonarcloud.io/api/projects/create"
-          else
-            echo "Proyecto ya existe."
-          fi
-
+          curl -s -X POST -u "$SONAR_TOKEN:" \
+            'https://sonarcloud.io/api/projects/create' \
+            -d "name=${{ github.event.repository.name }}" \
+            -d "organization=juliotabilo" \
+            -d "project=${{ github.event.repository.name }}" \
+            -d "visibility=public" || true
+          echo "Proyecto creado o ya existente en SonarCloud"
 
       # 2.1 Análisis SonarCloud (SAST)
       - name: SonarCloud
