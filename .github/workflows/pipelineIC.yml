@@ -38,7 +38,6 @@ jobs:
             # args: -Dsonar.qualitygate.wait=true #Estas Lineas hacen que falle el pipeline si encuentra vulnerabilidades críticas, altas o medias (Asi esta definido el quality gate en SonarCloud)
           #continue-on-error: false Esta Linea hace que si hay error en el Pipeline se quiebre
           continue-on-error: true  # Esta línea hace que no haya quiebre en el Pipeline (A pesar que haya error sigue)
-
         - name: Instalar y generar reporte SonarCloud
           run: |
             npm install -g sonar-report
@@ -47,10 +46,8 @@ jobs:
               --sonartoken="${{ secrets.SONAR_TOKEN }}" \
               --sonarorganization="juliotabilo" \
               --sonarcomponent="devsecops-laboratorio-final" \
-              --sonarbranch="feat-devsecops" \
-              --sonarrelease="1.0.0" > sonar-report.html
+              > sonar-report.html
           continue-on-error: true
-
         - name: Publicar reporte SonarCloud HTML
           uses: actions/upload-artifact@v4
           with:
