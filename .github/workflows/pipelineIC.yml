@@ -14,7 +14,8 @@ jobs:
 
         #- name: Imprimir Hola Mundo
           #run: echo "Hola Mundo desde GitHub Actions (Mi primer Job)"
-        
+
+        #Analisis SAST
         - name: Validando existencia de Proyecto en Sonarcloud
           id: validateProjectSonar
           run: |
@@ -35,3 +36,15 @@ jobs:
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           continue-on-error: true  # Esta línea hace que no haya quiebre en el Pipeline (A pesar que haya error sigue)
 
+          # Analisis SCA
+        - name: Setup Node.js
+          uses: actions/setup-node@v4
+          with:
+            node-version: '18'
+        - name: Install dependencies
+          run: npm install
+          continue-on-error: true
+        - name: SCA - npm audit (Falla con vulnerabilidades)
+          run: npm audit --audit-level=medium
+
+           
