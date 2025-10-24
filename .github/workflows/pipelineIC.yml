@@ -44,16 +44,18 @@ jobs:
         - name: Install dependencies
           run: npm install
           continue-on-error: true
-        - name: Generar reporte HTML SCA (con audit-export)
+        - name: Generar reporte HTML SCA
           run: |
-            npm audit --json | npx audit-export --html ReporteSCA.html || true
+            npm audit --json | npx audit-export --path ReporteSCA.html --title "Reporte SCA - DevSecOps Laboratorio" || true
+            echo "=== Archivos generados ==="
             ls -la *.html
           continue-on-error: true
+        
         - name: Publicar reporte SCA como artefacto
           uses: actions/upload-artifact@v4
           with:
             name: sca-audit-report
-            path: ReporteSCA1.html
+            path: "*.html"
         - name: SCA - npm audit (falla con vulnerabilidades)
           run: npm audit --audit-level=moderate
 
