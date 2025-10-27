@@ -101,4 +101,7 @@ jobs:
       - name: Notificar por WhatsApp
         if: failure()
         run: |
-          curl -X POST "https://api.callmebot.com/whatsapp.php?phone=56946654264&text=🚨+Pipeline+falló+en+GitHub+Actions:+${{ github.workflow }}+Run+ID:+${{ github.run_id }}&apikey=J2HqAV3KedLY"
+          MENSAJE="Pipeline fallo en GitHub Actions Run ID ${{ github.run_id }} Workflow ${{ github.workflow }}"
+          MENSAJE_URL=${MENSAJE// /%20}
+          curl -X POST "https://api.callmebot.com/whatsapp.php?phone=56946654264&text=$MENSAJE_URL&apikey=J2HqAV3KedLY"
+
