@@ -92,7 +92,7 @@ jobs:
           path: trivy-report.html
 
       # 12. Notificar fallo a Slack si ocurre un error en el pipeline
-      - name: Notificar fallo a Slack
+      - name: Notificar fallo a Slack 
         if: failure()
         run: |
           curl -X POST -H "Content-type: application/json" --data "{\"text\":\"🚨 Pipeline falló en el job JTRPipeline. Revisa aquí: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" ${{ secrets.SLACK_WEBHOOK_URL }}
