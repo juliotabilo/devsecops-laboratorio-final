@@ -97,11 +97,3 @@ jobs:
         run: |
           curl -X POST -H "Content-type: application/json" --data "{\"text\":\"🚨 Pipeline falló en el job JTRPipeline. Revisa aquí: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" ${{ secrets.SLACK_WEBHOOK_URL }}
 
-       # 12. Notificar fallo por Whastapp si ocurre un error en el pipeline (Nota: Este servicio da 3 días gratis, luego es de pago)
-      - name: Notificar por WhatsApp
-        if: failure()
-        run: |
-          MENSAJE="Pipeline fallo en GitHub Actions Run ID ${{ github.run_id }} Workflow ${{ github.workflow }}"
-          MENSAJE_URL=${MENSAJE// /%20}
-          curl -X POST "https://api.callmebot.com/whatsapp.php?phone=56946654264&text=$MENSAJE_URL&apikey=J2HqAV3KedLY"  
-
