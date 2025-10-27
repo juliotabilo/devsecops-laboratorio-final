@@ -66,7 +66,7 @@ jobs:
         # 3.4 Ejecutar npm audit para fallo en vulnerabilidades medias o mayores
         - name: SCA - npm audit (falla si hay vulnerabilidades medias o mayores)
           run: npm audit --audit-level=moderate
-          continue-on-error: true
+          continue-on-error: false
 
         # 4. Construcción de la Imagen Docker
         - name: Construcción de imagen Docker
@@ -97,3 +97,12 @@ jobs:
           with:
             name: trivy-html-report
             path: trivy-report.html
+
+        # Probando Notificaciones a Slack en caso de fallo    
+        - name: Notificar fallo a Slack
+          if: failure()
+          run: |
+            curl -X POST -H 'Content-type: application/json' --data \
+            '{"text":"🚨 Pipeline falló en el job JTRPipeline. Revisa aquí: ${{ github.workflow }} - ${{ github.run_id }}"}' \
+            ${{ secrets.SLACK_WEBHOOK_URL }}
+
