@@ -33,8 +33,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        #with:
-        #  args: -Dsonar.qualitygate.wait=true
+        with:
+          args: |
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=300
+
 
       # 4. Preparar Node.js para SCA
       - name: Setup Node.js
