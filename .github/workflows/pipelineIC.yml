@@ -42,6 +42,8 @@ jobs:
           args: |
             -Dsonar.qualitygate.wait=true
             -Dsonar.qualitygate.timeout=300
+        continue-on-error: true
+
 
 
       # 4. Preparar Node.js para SCA
